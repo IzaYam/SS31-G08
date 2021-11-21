@@ -12,7 +12,6 @@ struct Hoja {
 	Hoja<E, T>* der;
 	Hoja<E, T>* padre;
 	//Trabajemos con "Block" no "block" Apuntamos a un Block de registros
-		//Le cambie el nombre
 	Block<T>* bloquePadre;
 	// El Registro que apuntamos, tipo T
 	T* registro;
@@ -41,16 +40,16 @@ public:
 			// elem < actual->elem
 			else if (!comparar(elem, actual->elem)) actual = actual->izq;
 		}
-		if (padre == nullptr) raiz = new Hoja<T>(elem);
+		if (padre == nullptr) raiz = new Hoja<E, T>(elem);
 		//true - der / false - izq
 		// elem < padre->elem
 		else if (!comparar(elem, padre->elem)) {
-			padre->izq = new Hoja<T>(elem, padre);
+			padre->izq = new Hoja<E, T>(elem, padre);
 			balancear(padre, izquierda, true);
 		}
 		// elem > padre->elem
 		else if (comparar(elem, padre->elem)) {
-			padre->derecho = new Hoja<T>(elem, padre);
+			padre->der = new Hoja<E, T>(elem, padre);
 			balancear(padre, derecha, true);
 		}
 	}
@@ -117,14 +116,14 @@ public:
 	void RDI(Hoja<E, T>* nodo) {
 		Hoja<E, T>* Padre = nodo->padre;
 		Hoja<E, T>* P = nodo;
-		Hoja<E, T>* Q = P->derecho;
-		Hoja<E, T>* R = Q->izquierdo;
-		Hoja<E, T>* B = R->izquierdo;
-		Hoja<E, T>* C = R->derecho;
+		Hoja<E, T>* Q = P->der;
+		Hoja<E, T>* R = Q->izq;
+		Hoja<E, T>* B = R->izq;
+		Hoja<E, T>* C = R->der;
 
 		if (Padre)
-			if (Padre->derecho == nodo) Padre->derecho = R;
-			else Padre->izquierdo = R;
+			if (Padre->der == nodo) Padre->der = R;
+			else Padre->izq = R;
 		else raiz = R;
 
 		P->der = B;
@@ -192,15 +191,16 @@ public:
 	}
 
 	//bool temporalmente, cambiar para que devuelva el nodo o valor o etc.
-	bool buscar(T elem, function<bool(T&, T&)> comparar) {
+	void buscar(T elem, function<bool(T&, T&)> comparar) {
 		actual = raiz;
 		while (actual != nullptr) {
-			if (elem == actual->elem) return true;
+			if (elem == actual->elem) cout << "Si está en árbol"; //return true;
 			//elem > actual->elem
 			else if (comparar(elem, actual->elem)) actual = actual->der;
 				//elem < actual->elem
 			else if (!comparar(elem, actual->elem)) actual = actual->izq;
 		}
-		return false; // No está en árbol
+		cout << "No está en árbol";
+		//return false; // No está en árbol
 	}
 };
