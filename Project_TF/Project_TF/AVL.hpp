@@ -2,37 +2,35 @@
 #include <functional>
 #include "Lista.hpp"
 
-template<typename T, typename R, typename C>
+// Solo 2 templates
+	// E para el elemento, T para el Registro
+template<typename E, typename T>
 struct Hoja {
-	T elem;
+	E elem;
 	int FE; // factor equilibrio
-
-	//Hoja tiene 3 templates asi que faltaban ponerlos, asi en todas
-	Hoja<T,R,C>* izq;
-	Hoja<T,R,C>* der;
-	Hoja<T,R,C>* padre;
-
+	Hoja<E, T>* izq;
+	Hoja<E, T>* der;
+	Hoja<E, T>* padre;
 	//Trabajemos con "Block" no "block" Apuntamos a un Block de registros
-	Block<R>* Block;
-	// Apuntamos a un solo registro
-	R* registro;
-	//Esto no lo toque
-	Hoja(T elem, Hoja* padre = nullptr, Hoja* izq = nullptr, Hoja* der = nullptr) :
+		//Le cambie el nombre
+	Block<T>* bloquePadre;
+	// El Registro que apuntamos, tipo T
+	T* registro;
+	Hoja(E elem, Hoja* padre = nullptr, Hoja* izq = nullptr, Hoja* der = nullptr) :
 		elem(elem), padre(padre), izq(izq), der(der) {}
 };
 
-template<typename T, typename R, typename C>
+template<typename E, typename T>
 class AVL {
 	enum Rama { izquierda, derecha };
-	// Aqui tambien añadimos los 3 templates
-	Hoja<T, R, C>* raiz;
-	Hoja<T, R, C>* actual;
+	Hoja<E, T>* raiz;
+	Hoja<E, T>* actual;
 	int altura;
 public:
 	AVL() { raiz = actual = nullptr; }
 
 	void insertar(T elem, function<bool(T&, T&)> comparar) {
-		Hoja<T, R, C>* padre = nullptr;
+		Hoja<E, T>* padre = nullptr;
 		actual = raiz;
 		// mover el padre hasta el actual, manteniendo un puntero al nodo padre
 		while (actual != nullptr) {
@@ -57,7 +55,7 @@ public:
 		}
 	}
 
-	void balancear(Hoja<T, R, C>* nodo, Rama rama, bool agregar) {
+	void balancear(Hoja<E, T>* nodo, Rama rama, bool agregar) {
 		bool salir = false;
 		while (nodo != nullptr && !salir) {
 			if (agregar)
@@ -83,80 +81,76 @@ public:
 	}
 
 	// Rotación doble a derecha
-	void RDD(Hoja<T, R, C>* nodo) {
-		Hoja<T, R, C>* Padre = nodo->padre;
-		Hoja<T, R, C>* P = nodo;
-		Hoja<T, R, C>* Q = P->izq;
-		// Cambie el R por el J, era mas facil cambiar solo el template xddd
-		Hoja<T, R, C>* J = Q->der;
-		Hoja<T, R, C>* B = J->izq;
-		// Cambiamos el C por el D para evitar colision con los templates, repito, era mas sencillo cambiar el template uu
-		Hoja<T, R, C>* D = J->der;
+	void RDD(Hoja<E, T>* nodo) {
+		Hoja<E, T>* Padre = nodo->padre;
+		Hoja<E, T>* P = nodo;
+		Hoja<E, T>* Q = P->izq;
+		Hoja<E, T>* R = Q->der;
+		Hoja<E, T>* B = R->izq;
+		Hoja<E, T>* C = R->der;
 
 		if (Padre) {
-			if (Padre->der == nodo) Padre->der = J;
-			else Padre->izq = J;
+			if (Padre->der == nodo) Padre->der = R;
+			else Padre->izq = R;
 		}
-		else raiz = J;
+		else raiz = R;
 
 		Q->der = B;
-		P->izq = D;
-		J->izq = Q;
-		J->der = P;
+		P->izq = C;
+		R->izq = Q;
+		R->der = P;
 
-		J->padre = Padre;
-		P->padre = Q->padre = J;
+		R->padre = Padre;
+		P->padre = Q->padre = R;
 		if (B) B->padre = Q;
-		if (D) D->padre = P;
+		if (C) C->padre = P;
 
-		switch (J->FE) {
+		switch (R->FE) {
 		case -1: Q->FE = 0; P->FE = 1; break;
 		case 0:  Q->FE = 0; P->FE = 0; break;
 		case 1:  Q->FE = -1; P->FE = 0; break;
 		}
-		J->FE = 0;
+		R->FE = 0;
 	}
 
 	// Rotación doble a izquierdas
-	void RDI(Hoja<T, R, C>* nodo) {
-		// Lo mismo por aca, Recordar que "J" es "R" en realidad, habria que cambiarlo
-		Hoja<T, R, C>* Padre = nodo->padre;
-		Hoja<T, R, C>* P = nodo;
-		Hoja<T, R, C>* Q = P->derecho;
-		Hoja<T, R, C>* J = Q->izquierdo;
-		Hoja<T, R, C>* B = J->izquierdo;
-		Hoja<T, R, C>* D = J->derecho;
+	void RDI(Hoja<E, T>* nodo) {
+		Hoja<E, T>* Padre = nodo->padre;
+		Hoja<E, T>* P = nodo;
+		Hoja<E, T>* Q = P->derecho;
+		Hoja<E, T>* R = Q->izquierdo;
+		Hoja<E, T>* B = R->izquierdo;
+		Hoja<E, T>* C = R->derecho;
 
 		if (Padre)
-			if (Padre->derecho == nodo) Padre->derecho = J;
-			else Padre->izquierdo = J;
-		else raiz = J;
+			if (Padre->derecho == nodo) Padre->derecho = R;
+			else Padre->izquierdo = R;
+		else raiz = R;
 
 		P->der = B;
-		Q->izq = D;
-		J->izq = P;
-		J->der = Q;
+		Q->izq = C;
+		R->izq = P;
+		R->der = Q;
 
-		J->padre = Padre;
-		P->padre = Q->padre = J;
+		R->padre = Padre;
+		P->padre = Q->padre = R;
 		if (B) B->padre = P;
-		if (D) D->padre = Q;
+		if (C) C->padre = Q;
 
-		switch (J->FE) {
+		switch (R->FE) {
 		case -1: P->FE = 0; Q->FE = 1; break;
 		case 0:  P->FE = 0; Q->FE = 0; break;
 		case 1:  P->FE = -1; Q->FE = 0; break;
 		}
-		J->FE = 0;
+		R->FE = 0;
 	}
 
 	// Rotación simple a derecha
-	void RSD(Hoja<T, R, C>* nodo) {
-		//Aqui si no hice nada creo
-		Hoja<T, R, C>* Padre = nodo->padre;
-		Hoja<T, R, C>* P = nodo;
-		Hoja<T, R, C>* Q = P->izq;
-		Hoja<T, R, C>* B = Q->der;
+	void RSD(Hoja<E, T>* nodo) {
+		Hoja<E, T>* Padre = nodo->padre;
+		Hoja<E, T>* P = nodo;
+		Hoja<E, T>* Q = P->izq;
+		Hoja<E, T>* B = Q->der;
 
 		if (Padre)
 			if (Padre->der == P) Padre->der = Q;
@@ -175,12 +169,11 @@ public:
 	}
 
 	// Rotación simple a izquierda
-	void RSI(Hoja<T, R, C>* nodo) {
-		// Aqui tampoco
-		Hoja<T, R, C>* Padre = nodo->padre;
-		Hoja<T, R, C>* P = nodo;
-		Hoja<T, R, C>* Q = P->der;
-		Hoja<T, R, C>* B = Q->izq;
+	void RSI(Hoja<E, T>* nodo) {
+		Hoja<E, T>* Padre = nodo->padre;
+		Hoja<E, T>* P = nodo;
+		Hoja<E, T>* Q = P->der;
+		Hoja<E, T>* B = Q->izq;
 
 		if (Padre)
 			if (Padre->der == P) Padre->der = Q;
@@ -200,13 +193,10 @@ public:
 
 	//bool temporalmente, cambiar para que devuelva el nodo o valor o etc.
 	bool buscar(T elem, function<bool(T&, T&)> comparar) {
-
 		actual = raiz;
 		while (actual != nullptr) {
 			if (elem == actual->elem) return true;
 			//elem > actual->elem
-			
-			//Aqui faltaba un parentesis!!!!!!!
 			else if (comparar(elem, actual->elem)) actual = actual->der;
 				//elem < actual->elem
 			else if (!comparar(elem, actual->elem)) actual = actual->izq;
