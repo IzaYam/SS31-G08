@@ -1,15 +1,18 @@
 #pragma once
 template<typename T>
-struct block {
+struct Block {
+	int nBloque, nonce;
 	T elem;
-	block<T>* ant;
-	block<T>* sig;
-	block(T elem) { this->elem = elem; }
+	Block<T>* ant;
+	Block<T>* sig;
+	Block(T elemento, int nBloque) : elem(elemento), ant(nullptr), sig(nullptr), nBloque(nBloque) {
+		nonce = rand() % 9999999 + 1;
+	}
 };
 template <class T>
 class Lista {
-	block<T>* inicio;
-	block<T>* fin;
+	Block<T>* inicio;
+	Block<T>* fin;
 	int size;
 public:
 	Lista() {
@@ -19,21 +22,20 @@ public:
 	
 	void push_back(T elem) {
 		if (size == 0) {
-			inicio = fin = new block<T>(elem);
+			inicio = fin = new Block<T>(elem, size+1);
 			++size;
 			return;
 		}
-		block<T>* nuevo = new block<T>(elem);
+		Block<T>* nuevo = new Block<T>(elem, size+1);
 		fin->sig = nuevo;
 		nuevo->ant = fin;
 		fin = nuevo;
 		++size;
-
 	}
 
 	void clear() {
 		if (size == 0) return;
-		block<T>* aux;
+		Block<T>* aux;
 		while (inicio != nullptr) {
 			aux = inicio;
 			inicio = inicio->sig;
