@@ -11,11 +11,11 @@ struct Block {
 	Block<T>* sig;
 	//Ahora te pide el nodo anterior para sacarle su hash y usarlo para la cosntruccion
 	Block(Block* ant, T elemento, int nBloque = 0) : ant(ant), elem(elemento), sig(nullptr), nBloque(nBloque){
+		nonce = rand() % 89999 + 10000;
 		//Llamamos metodo cuando construye
 		setAtributos();
 	}
 	void setAtributos() {
-		nonce = rand() % 89999 + 10000;
 		if (ant == nullptr) hash = (nBloque + nonce + elem) % 10000000;
 		else hash = (nBloque + nonce + elem + ant->hash) % 10000000;
 		cout << hash << endl;
