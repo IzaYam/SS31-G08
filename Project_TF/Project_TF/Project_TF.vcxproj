@@ -143,7 +143,6 @@
     <ClCompile Include="Project_TF.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Administrador.hpp" />
     <ClInclude Include="Archivo.hpp" />
     <ClInclude Include="AVL.hpp" />
     <ClInclude Include="Lista.hpp" />
