@@ -46,7 +46,9 @@ private:
 class Administrador {
 	Usuario* usuario_actual;
 	Blockchain<Registro*> blockchain;
-	ArbolBinario<Registro*>* call_failure_index;
+	ArbolBinario<Registro*>* call_failure_index = nullptr;
+	ArbolBinario<Registro*>* subscription_length_index = nullptr;
+	ArbolBinario<Registro*>* frequency_use_index = nullptr;
 
 public:
 	Administrador() {
@@ -56,7 +58,7 @@ public:
 	void leer() {
 		vector<Registro*> registros;
 
-		fstream file("dataset.csv", ios::in);
+		fstream file("data\\dataset.csv", ios::in);
 
 		if (!file.is_open()) {
 			cout << "No se pudo abrir el archivo.\n";
@@ -103,6 +105,16 @@ public:
 			if (a->call_failure > b->call_failure) return 1;
 			return 0;
 			});
+		subscription_length_index = blockchain.crear_indice([](Registro* a, Registro* b) {
+			if (a->subscription_length < b->subscription_length) return -1;
+			if (a->subscription_length > b->subscription_length) return 1;
+			return 0;
+			});
+		frequency_use_index = blockchain.crear_indice([](Registro* a, Registro* b) {
+			if (a->frequency_use < b->frequency_use) return -1;
+			if (a->frequency_use > b->frequency_use) return 1;
+			return 0;
+			});
 	}
 
 	void imprimir_arboles() {
@@ -137,24 +149,36 @@ public:
 
 		string cabecera = "\nSesion iniciada: " + usuario_actual->get_nombre() + "\n";
 		Menu menu(cabecera);
-		menu.crear_opcion("Hacer una nueva transaccion", [this]() {
-				
-			});
 		menu.crear_opcion("Ver todas mis transacciones", [this]() {
 			if (blockchain.get_size() == 0) {
 				cout << endl << "No cuentas con ninguna transaccion." << endl;
 				return;
 			}
-			cout << endl << "Listado de transacciones de " << usuario_actual << ":" << endl;
-			int num = 1;
-			while (num >= blockchain.get_size()) {
-				//mostrar datos y contenido de cada transaccion
-				
-				cout << "\nContenido de la transaccion numero " << num << ":\n\n";
-				
-				++num;
-			}
+			cout << endl << "Listado de transacciones de " << usuario_actual->get_nombre() << ":" << endl;
+				//mostrar datos de cada transaccion
+				blockchain.for_each([this](Registro* a) {
+					if (a->customer_id == usuario_actual->get_customer_ID()) {
+						cout << "\nContenido de la transaccion numero " << a->transaction_id << ":\n\n";
+						cout << *a;
+					}
+				});
 			cout << endl;
+			});
+		menu.crear_opcion("Busqueda por: call failure", [this]() {
+			int num;
+			cout << "Ingresa numero a buscar: ";
+			cin >> num;
+			Registro* reg = new Registro();
+			reg->call_failure = num;
+			auto busqueda = call_failure_index->find(reg);
+			delete reg;
+			if (busqueda == nullptr) { 
+				cout << "No se encontro nada" << endl; 
+				return; 
+			}
+			reg = *busqueda;
+			cout << "\nContenido de la transaccion numero " << reg->transaction_id << ":\n\n";
+			cout << *reg;
 			});
 		menu.crear_opcion("Cerrar sesion", [this, &salir]() {
 			delete usuario_actual;

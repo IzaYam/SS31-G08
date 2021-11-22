@@ -71,32 +71,17 @@ public:
 		return arbol;
 	}
 
-	void clear() {
-		if (size == 0) return;
-		Block<T>* aux = nullptr;
-		while (inicio != nullptr) {
-			aux = inicio;
-			inicio = inicio->sig;
-			delete aux;
+	void for_each(function<void(T&)> fn) {
+		Block<T>* aux = inicio;
+		while (aux != nullptr) {
+			for (T& elem : aux->elem) {
+				fn(elem);
+			}
+			aux = aux->sig;
 		}
-		inicio = fin = nullptr;
-		size = 0;
 	}
 
 	int get_size() {
 		return size;
-	}
-
-	int hash_por_posicion(size_t p) {
-		Block<T>* aux = inicio;
-		size_t pos = 0;
-		if (pos > size && pos < 0) {
-			while (pos < p) {
-				aux = aux->sig;
-				++pos;
-			}
-			return aux->hash;
-		}
-		exit(1);
 	}
 };

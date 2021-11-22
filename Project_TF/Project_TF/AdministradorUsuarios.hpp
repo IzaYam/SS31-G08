@@ -11,14 +11,12 @@
 using namespace std;
 namespace fs = std::filesystem;
 
-class AdministradorUsuarios;
-
 class Usuario {
 	string usuario;
 	int customer_ID;
 public:
 	Usuario(string usuario) : usuario(usuario) {
-		fstream config(AdministradorUsuarios::get_ruta_config(), ios::in);
+		fstream config(fs::current_path() / "data" / "users.csv", ios::in);
 		string registro, campo;
 		getline(config, registro);
 		while (getline(config, registro)) {
@@ -37,6 +35,10 @@ public:
 
 	string get_nombre() {
 		return usuario;
+	}
+
+	int get_customer_ID() {
+		return customer_ID;
 	}
 };
 
@@ -80,7 +82,7 @@ public:
 	}
 
 	static int cantidad_Customers() {
-		int cantidad;
+		int cantidad = 0;
 		fstream config(get_ruta_config(), ios::in);
 		string registro;
 		getline(config, registro);

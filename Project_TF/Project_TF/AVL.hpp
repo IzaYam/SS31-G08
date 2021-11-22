@@ -34,6 +34,10 @@ public:
 		_imprimir(impresora, raiz);
 	}
 
+	T* find(T valor) {
+		return _find(valor, raiz);
+	}
+
 private:
 	void _imprimir(StringifyFn& stringifier, Hoja<T>*& nodo, string espacio = "") {
 		if (nodo->izq != nullptr) {
@@ -56,6 +60,14 @@ private:
 			_insertar(valor, nodo->der);
 		}
 		balancear(nodo);
+	}
+	
+	T* _find(T& valor, Hoja<T>*& nodo) {
+		int comp = comparar(valor, nodo->valor);
+		if (comp == 0) return new T(nodo->valor);
+		if (comp < 0) return _find(valor, nodo->izq);
+		if (comp > 0) return _find(valor, nodo->der);
+		return nullptr;
 	}
 
 	void balancear(Hoja<T>*& nodo) {
