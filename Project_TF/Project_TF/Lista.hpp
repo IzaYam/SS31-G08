@@ -27,10 +27,10 @@ struct Block {
 		//cout << hash << endl;
 		//Esto es opcional, para que compruebes que los datos que salen son diferentes
 		// Se hizo una prueba con "List<int> una_lista_de_enteros"
-		ofstream archivo;
+		/*ofstream archivo;
 		archivo.open("prueba.txt", ios::app);
 		archivo << hash << endl;
-		archivo.close();
+		archivo.close();*/
 	}
 };
 
@@ -59,12 +59,12 @@ public:
 		++size;
 	}
 
-	BinaryTree<T>* crear_indice(function<int(T, T)> fn) {
-		BinaryTree<T>* arbol = new BinaryTree<T>(fn);
+	ArbolBinario<T>* crear_indice(function<int(T, T)> fn) {
+		ArbolBinario<T>* arbol = new ArbolBinario<T>(fn);
 		Block<T>* aux = inicio;
 		while (aux != nullptr) {
 			for (T& elem : aux->elem) {
-				arbol->Insert(elem);
+				arbol->insertar(elem);
 			}
 			aux = aux->sig;
 		}

@@ -148,7 +148,6 @@
   <ItemGroup>
     <ClInclude Include="Administrador.hpp" />
     <ClInclude Include="AdministradorUsuarios.hpp" />
-    <ClInclude Include="Archivo.hpp" />
     <ClInclude Include="AVL.hpp" />
     <ClInclude Include="Lista.hpp" />
     <ClInclude Include="Menu.hpp" />

@@ -11,10 +11,25 @@
 using namespace std;
 namespace fs = std::filesystem;
 
+class AdministradorUsuarios;
+
 class Usuario {
 	string usuario;
+	int customer_ID;
 public:
-	Usuario(string usuario) : usuario(usuario) {}
+	Usuario(string usuario) : usuario(usuario) {
+		fstream config(AdministradorUsuarios::get_ruta_config(), ios::in);
+		string registro, campo;
+		getline(config, registro);
+		while (getline(config, registro)) {
+			stringstream am(registro);
+			getline(am, campo, ',');
+			customer_ID = stoi(campo);
+			getline(am, campo, ',');
+			if (campo == usuario) break;
+		}
+	}
+	Usuario(string usuario, int customer_ID) : usuario(usuario), customer_ID(customer_ID) {}
 
 	static bool validar_usuario(string usuario) {
 		return std::regex_match(usuario, Validador::Usuario);
@@ -28,11 +43,11 @@ public:
 class AdministradorUsuarios {
 	AdministradorUsuarios() {}
 
+public:
 	static fs::path get_ruta_config() {
-		return fs::current_path() / "data" / "usuarios.txt";
+		return fs::current_path() / "data" / "users.csv";
 	}
 
-public:
 	static Usuario* crear_usuario() {
 		cout << "\nCreacion de cuenta nueva" << endl;
 		string usuario;
@@ -40,26 +55,39 @@ public:
 			cout << "Usuario: ";
 			cin >> usuario;
 		} while (!Usuario::validar_usuario(usuario));
-		return crear_usuario(usuario);
+		return crear_usuario(usuario, cantidad_Customers() + 1);
 	}
 
-	static Usuario* crear_usuario(string usuario) {
+	static Usuario* crear_usuario(string usuario, int customer_ID) {
 		fstream config(get_ruta_config(), ios::out | ios::app);
-		config << usuario << "\n";
+		config << customer_ID << "," << usuario << "\n";
 		config.close();
 
-		return new Usuario(usuario);
+		return new Usuario(usuario, customer_ID);
 	}
 
 	static bool existe_usuario(string usuario) {
 		fstream config(get_ruta_config(), ios::in);
 		string registro, campo;
+		getline(config, registro);
 		while (getline(config, registro)) {
 			stringstream am(registro);
-			getline(am, campo, '\n');
+			getline(am, campo, ',');
+			getline(am, campo, ',');
 			if (campo == usuario) return true;
 		}
 		return false;
+	}
+
+	static int cantidad_Customers() {
+		int cantidad;
+		fstream config(get_ruta_config(), ios::in);
+		string registro;
+		getline(config, registro);
+		while (getline(config, registro)) {
+			++cantidad;
+		}
+		return cantidad;
 	}
 
 	static Usuario* iniciar_sesion() {
@@ -81,7 +109,7 @@ public:
 			if (opcion == 'n') {
 				exit(0);
 			}
-			return crear_usuario(usuario);
+			return crear_usuario(usuario, cantidad_Customers() + 1);
 		}
 
 		return new Usuario(usuario);

@@ -8,105 +8,105 @@ using namespace std;
 
 template <typename T>
 struct Hoja {
-	Hoja<T>* left = nullptr;
-	Hoja<T>* right = nullptr;
-	T value;
-	int height = -1;
-	Hoja(T value) : value(value) {}
+	Hoja<T>* izq = nullptr;
+	Hoja<T>* der = nullptr;
+	T valor;
+	int altura = -1;
+	Hoja(T valor) : valor(valor) {}
 };
 
 template <class T>
-class BinaryTree {
-	typedef function<int(T, T)> ComparerFn;
+class ArbolBinario {
+	typedef function<int(T, T)> CompararFn;
 	typedef function<string(T)> StringifyFn;
-	Hoja<T>* root;
-	ComparerFn comparer;
+	Hoja<T>* raiz;
+	CompararFn comparar;
 
 public:
-	BinaryTree(ComparerFn comp)
-		: comparer(comp), root(nullptr) {}
+	ArbolBinario(CompararFn comp)
+		: comparar(comp), raiz(nullptr) {}
 
-	void Insert(T v) {
-		_Insert(v, root);
+	void insertar(T v) {
+		_insertar(v, raiz);
 	}
 
-	void Print(StringifyFn printer) {
-		_Print(printer, root);
+	void imprimir(StringifyFn impresora) {
+		_imprimir(impresora, raiz);
 	}
 
 private:
-	void _Print(StringifyFn& stringifier, Hoja<T>*& node, string space = "") {
-		if (node->left != nullptr) {
-			_Print(stringifier, node->left, space + "  ");
+	void _imprimir(StringifyFn& stringifier, Hoja<T>*& nodo, string espacio = "") {
+		if (nodo->izq != nullptr) {
+			_imprimir(stringifier, nodo->izq, espacio + "  ");
 		}
-		cout << space << stringifier(node->value);
-		if (node->right != nullptr) {
-			_Print(stringifier, node->right, space + "  ");
+		cout << espacio << stringifier(nodo->valor);
+		if (nodo->der != nullptr) {
+			_imprimir(stringifier, nodo->der, espacio + "  ");
 		}
 	}
 
-	void _Insert(T value, Hoja<T>*& node) {
-		if (node == nullptr) {
-			node = new Hoja<T>(value);
+	void _insertar(T valor, Hoja<T>*& nodo) {
+		if (nodo == nullptr) {
+			nodo = new Hoja<T>(valor);
 			return;
 		}
-		if (comparer(value, node->value) < 0) {
-			_Insert(value, node->left);
+		if (comparar(valor, nodo->valor) < 0) {
+			_insertar(valor, nodo->izq);
 		} else {
-			_Insert(value, node->right);
+			_insertar(valor, nodo->der);
 		}
-		Balance(node);
+		balancear(nodo);
 	}
 
-	void Balance(Hoja<T>*& node) {
-		int diff = Height(node->left) - Height(node->right);
+	void balancear(Hoja<T>*& nodo) {
+		int diff = altura(nodo->izq) - altura(nodo->der);
 		if (diff < -1) {
-			int rrHeight = Height(node->right->right);
-			int rlHeight = Height(node->right->left);
-			if (rlHeight > rrHeight) {
-				HoraryRotation(node->right);
+			int rrAltura = altura(nodo->der->der);
+			int rlAltura = altura(nodo->der->izq);
+			if (rlAltura > rrAltura) {
+				rotacion_derecha(nodo->der);
 			}
-			return AntihoraryRotation(node);
+			return rotacion_izquierda(nodo);
 		}
 		if (diff > 1) {
-			int llHeight = Height(node->left->left);
-			int lrHeight = Height(node->left->right);
-			if (lrHeight > llHeight) {
-				AntihoraryRotation(node->left);
+			int llAltura = altura(nodo->izq->izq);
+			int lrAltura = altura(nodo->izq->der);
+			if (lrAltura > llAltura) {
+				rotacion_izquierda(nodo->izq);
 			}
-			return HoraryRotation(node);
+			return rotacion_derecha(nodo);
 		}
-		UpdateHeight(node);
+		actualizar_altura(nodo);
 	}
 
-	void HoraryRotation(Hoja<T>*& node) {
-		Hoja<T>* aux = node->left;
-		node->left = aux->right;
-		UpdateHeight(node);
-		aux->right = node;
-		UpdateHeight(aux);
-		node = aux;
+	void rotacion_derecha(Hoja<T>*& nodo) {
+		Hoja<T>* aux = nodo->izq;
+		nodo->izq = aux->der;
+		actualizar_altura(nodo);
+		aux->der = nodo;
+		actualizar_altura(aux);
+		nodo = aux;
 	}
 
-	void AntihoraryRotation(Hoja<T>*& node) {
-		Hoja<T>* aux = node->right;
-		node->right = aux->left;
-		UpdateHeight(node);
-		aux->left = node;
-		UpdateHeight(aux);
-		node = aux;
+	void rotacion_izquierda(Hoja<T>*& nodo) {
+		Hoja<T>* aux = nodo->der;
+		nodo->der = aux->izq;
+		actualizar_altura(nodo);
+		aux->izq = nodo;
+		actualizar_altura(aux);
+		nodo = aux;
 	}
 
-	void UpdateHeight(Hoja<T>*& node) {
-		if (node != nullptr) {
-			int rightHeight = Height(node->right);
-			int leftHeight = Height(node->left);
-			node->height = max(rightHeight, leftHeight) + 1;
+	void actualizar_altura(Hoja<T>*& nodo) {
+		if (nodo != nullptr) {
+			int AlturaDer = altura(nodo->der);
+			int AlturaIzq = altura(nodo->izq);
+			nodo->altura = max(AlturaDer, AlturaIzq) + 1;
 		}
 	}
 
-	int Height(Hoja<T>*& node) {
-		if (node == nullptr) return -1;
-		return node->height;
+	int altura(Hoja<T>*& nodo) {
+		if (nodo == nullptr) return -1;
+		return nodo->altura;
 	}
 };
