@@ -1,34 +1,60 @@
 #pragma once
+
+#include <time.h>
+#include<fstream>
+
+using namespace std;
+
 template<typename T>
-struct block {
+struct Block {
+	//Agregado el valor hash del nodo
+	int hash, nBloque, nonce;
 	T elem;
-	block<T>* ant;
-	block<T>* sig;
-	block(T elem) { this->elem = elem; }
+	Block<T>* ant;
+	Block<T>* sig;
+	//Ahora te pide el nodo anterior para sacarle su hash y usarlo para la cosntruccion
+	Block(Block* ant, T elemento, int nBloque = 0) : ant(ant), elem(elemento), sig(nullptr), nBloque(nBloque) {
+		nonce = rand() % 89999 + 10000;
+		//Llamamos metodo cuando construye
+		setAtributos();
+	}
+	void setAtributos() {
+		if (ant == nullptr) hash = (nBloque + nonce + elem) % 10000000;
+		else hash = (nBloque + nonce + elem + ant->hash) % 10000000;
+		cout << hash << endl;
+		//Esto es opcional, para que compruebes que los datos que salen son diferentes
+			// Se hizo una prueba con "List<int> una_lista_de_enteros"
+		ofstream archivo;
+		archivo.open("prueba.txt", ios::app);
+		archivo << hash << endl;
+		archivo.close();
+	}
 };
+
 template <class T>
 class Lista {
-	block<T>* inicio;
-	block<T>* fin;
+	Block<T>* inicio;
+	Block<T>* fin;
 	int size;
 public:
 	Lista() {
 		inicio = fin = nullptr;
 		size = 0;
 	}
-	
+
 	void push_back(T elem) {
 		if (size == 0) {
-			inicio = fin = new block<T>(elem);
+			//Se agrego un nodo nulp al inicio
+			inicio = fin = new Block<T>(nullptr, elem, size + 1);
 			++size;
 			return;
 		}
-		block<T>* nuevo = new block<T>(elem);
+		//Aca con el fin
+		Block<T>* nuevo = new Block<T>(fin, elem, size + 1);
 		fin->sig = nuevo;
 		nuevo->ant = fin;
 		fin = nuevo;
 		++size;
-
 	}
 
 	void clear() {
@@ -41,5 +67,20 @@ public:
 		}
 		inicio = fin = nullptr;
 		size = 0;
+	}
+
+	int getsize() { return size; }
+
+	int hash_por_posicion(size_t p) {
+		Block<T>* aux = inicio;
+		size_t pos = 0;
+		if (pos > cantidad && pos < 0) {
+			while (pos < p) {
+				aux = aux->sig;
+				++pos;
+			}
+			return aux->hash;
+		}
+		exit(1);
 	}
 };

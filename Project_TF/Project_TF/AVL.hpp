@@ -1,56 +1,61 @@
 #pragma once
+
 #include <functional>
+
 #include "Lista.hpp"
 
-template<typename T, typename R, typename B>
+// E para el elemento, T para el Registro
+template<typename E, typename T>
 struct Hoja {
-	T elem;
+	E elem;
 	int FE; // factor equilibrio
-	Hoja<T>* izq;
-	Hoja<T>* der;
-	Hoja<T>* padre;
-	block<R>* Block;
-	B<R>* registro;
-	Hoja(T elem, Hoja* padre = nullptr, Hoja* izq = nullptr, Hoja* der = nullptr) :
-		elem(elem), padre(padre), izq(izq), der(der),  {}
+	Hoja<E, T>* izq;
+	Hoja<E, T>* der;
+	Hoja<E, T>* padre;
+	//Apuntamos a un Block de registros
+	Block<T>* bloquePadre;
+	// El Registro que apuntamos, tipo T
+	T* registro;
+	Hoja(E elem, Hoja* padre = nullptr, Hoja* izq = nullptr, Hoja* der = nullptr) :
+		elem(elem), padre(padre), izq(izq), der(der) {}
 };
 
-template <class T>
+template<typename E, typename T>
 class AVL {
 	enum Rama { izquierda, derecha };
-	Hoja<T>* raiz;
-	Hoja<T>* actual;
+	Hoja<E, T>* raiz;
+	Hoja<E, T>* actual;
 	int altura;
 public:
 	AVL() { raiz = actual = nullptr; }
 
-	void insertar(T elem, function<bool(T&,T&)> comparar) {
-		Hoja<T>* padre = nullptr;
+	void insertar(T elem, function<bool(T&, T&)> comparar) {
+		Hoja<E, T>* padre = nullptr;
 		actual = raiz;
 		// mover el padre hasta el actual, manteniendo un puntero al nodo padre
 		while (actual != nullptr) {
 			padre = actual;
 			//true - der / false - izq
 			// elem > actual->elem
-			if (comparar(elem,actual->elem)) actual = actual->der;
+			if (comparar(elem, actual->elem)) actual = actual->der;
 			// elem < actual->elem
 			else if (!comparar(elem, actual->elem)) actual = actual->izq;
 		}
-		if (padre == nullptr) raiz = new Hoja<T>(elem);
+		if (padre == nullptr) raiz = new Hoja<E, T>(elem);
 		//true - der / false - izq
 		// elem < padre->elem
-		else if (!comparar(elem,padre->elem)) {
-			padre->izq = new Hoja<T>(elem, padre);
+		else if (!comparar(elem, padre->elem)) {
+			padre->izq = new Hoja<E, T>(elem, padre);
 			balancear(padre, izquierda, true);
 		}
 		// elem > padre->elem
 		else if (comparar(elem, padre->elem)) {
-			padre->derecho = new Hoja<T>(elem, padre);
+			padre->der = new Hoja<E, T>(elem, padre);
 			balancear(padre, derecha, true);
 		}
 	}
 
-	void balancear(Hoja<T>* nodo, Rama rama, bool agregar) {
+	void balancear(Hoja<E, T>* nodo, Rama rama, bool agregar) {
 		bool salir = false;
 		while (nodo != nullptr && !salir) {
 			if (agregar)
@@ -74,15 +79,15 @@ public:
 			nodo = nodo->padre;
 		}
 	}
-	
+
 	// Rotación doble a derecha
-	void RDD(Hoja<T>* nodo) {
-		Hoja<T>* Padre = nodo->padre;
-		Hoja<T>* P = nodo;
-		Hoja<T>* Q = P->izq;
-		Hoja<T>* R = Q->der;
-		Hoja<T>* B = R->izq;
-		Hoja<T>* C = R->der;
+	void RDD(Hoja<E, T>* nodo) {
+		Hoja<E, T>* Padre = nodo->padre;
+		Hoja<E, T>* P = nodo;
+		Hoja<E, T>* Q = P->izq;
+		Hoja<E, T>* R = Q->der;
+		Hoja<E, T>* B = R->izq;
+		Hoja<E, T>* C = R->der;
 
 		if (Padre) {
 			if (Padre->der == nodo) Padre->der = R;
@@ -109,17 +114,17 @@ public:
 	}
 
 	// Rotación doble a izquierdas
-	void RDI(Nodo* nodo) {
-		Nodo* Padre = nodo->padre;
-		Nodo* P = nodo;
-		Nodo* Q = P->derecho;
-		Nodo* R = Q->izquierdo;
-		Nodo* B = R->izquierdo;
-		Nodo* C = R->derecho;
+	void RDI(Hoja<E, T>* nodo) {
+		Hoja<E, T>* Padre = nodo->padre;
+		Hoja<E, T>* P = nodo;
+		Hoja<E, T>* Q = P->der;
+		Hoja<E, T>* R = Q->izq;
+		Hoja<E, T>* B = R->izq;
+		Hoja<E, T>* C = R->der;
 
 		if (Padre)
-			if (Padre->derecho == nodo) Padre->derecho = R;
-			else Padre->izquierdo = R;
+			if (Padre->der == nodo) Padre->der = R;
+			else Padre->izq = R;
 		else raiz = R;
 
 		P->der = B;
@@ -141,11 +146,11 @@ public:
 	}
 
 	// Rotación simple a derecha
-	void RSD(Nodo* nodo) {
-		Nodo* Padre = nodo->padre;
-		Nodo* P = nodo;
-		Nodo* Q = P->izq;
-		Nodo* B = Q->der;
+	void RSD(Hoja<E, T>* nodo) {
+		Hoja<E, T>* Padre = nodo->padre;
+		Hoja<E, T>* P = nodo;
+		Hoja<E, T>* Q = P->izq;
+		Hoja<E, T>* B = Q->der;
 
 		if (Padre)
 			if (Padre->der == P) Padre->der = Q;
@@ -164,11 +169,11 @@ public:
 	}
 
 	// Rotación simple a izquierda
-	void RSI(Nodo* nodo) {
-		Nodo* Padre = nodo->padre;
-		Nodo* P = nodo;
-		Nodo* Q = P->der;
-		Nodo* B = Q->izq;
+	void RSI(Hoja<E, T>* nodo) {
+		Hoja<E, T>* Padre = nodo->padre;
+		Hoja<E, T>* P = nodo;
+		Hoja<E, T>* Q = P->der;
+		Hoja<E, T>* B = Q->izq;
 
 		if (Padre)
 			if (Padre->der == P) Padre->der = Q;
@@ -187,15 +192,16 @@ public:
 	}
 
 	//bool temporalmente, cambiar para que devuelva el nodo o valor o etc.
-	bool buscar(T elem, function<bool(T&, T&)> comparar) {
+	void buscar(T elem, function<bool(T&, T&)> comparar) {
 		actual = raiz;
 		while (actual != nullptr) {
-			if (elem == actual->elem) return true; 
+			if (elem == actual->elem) cout << "Si está en árbol"; //return true;
 			//elem > actual->elem
-			else if (comparar(elem,actual->elem) actual = actual->der;
+			else if (comparar(elem, actual->elem)) actual = actual->der;
 			//elem < actual->elem
 			else if (!comparar(elem, actual->elem)) actual = actual->izq;
 		}
-		return false; // No está en árbol
+		cout << "No está en árbol";
+		//return false; // No está en árbol
 	}
 };

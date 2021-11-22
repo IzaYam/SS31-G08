@@ -44,5 +44,4 @@ public:
 		archivo.close();
 		return true;
 	}
-
 };
