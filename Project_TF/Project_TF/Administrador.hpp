@@ -17,7 +17,7 @@ namespace fs = std::filesystem;
 
 class Administrador {
 	Usuario* usuario_actual;
-	Lista<Archivo*> transacciones;
+	Blockchain<Archivo*> transacciones;
 
 public:
 	Administrador() {
@@ -52,13 +52,13 @@ public:
 				
 			});
 		menu.crear_opcion("Ver todas mis transacciones", [this]() {
-			if (transacciones.getsize() == 0) {
+			if (transacciones.get_size() == 0) {
 				cout << endl << "No cuentas con ninguna transaccion." << endl;
 				return;
 			}
 			cout << endl << "Listado de transacciones de " << usuario_actual << ":" << endl;
 			int num = 1;
-			while (num >= transacciones.getsize()) {
+			while (num >= transacciones.get_size()) {
 				//mostrar datos y contenido de cada transaccion
 				Archivo transaccion_objetivo(crear_ruta_carpeta(usuario) / to_string(transacciones.hash_por_posicion(num)));
 				cout << "\nContenido de la transaccion numero " << num << ":\n\n";
