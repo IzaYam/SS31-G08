@@ -177,7 +177,39 @@ public:
 				return; 
 			}
 			reg = *busqueda;
-			cout << "\nContenido de la transaccion numero " << reg->transaction_id << ":\n\n";
+			cout << "\nContenido de la transaccion numero " << reg->call_failure << ":\n\n";
+			cout << *reg;
+			});
+		menu.crear_opcion("Busqueda por: subscription lenght", [this]() {
+			int num;
+			cout << "Ingresa numero a buscar: ";
+			cin >> num;
+			Registro* reg = new Registro();
+			reg->subscription_length = num;
+			auto busqueda = subscription_length_index->find(reg);
+			delete reg;
+			if (busqueda == nullptr) {
+				cout << "No se encontro nada" << endl;
+				return;
+			}
+			reg = *busqueda;
+			cout << "\nContenido de la transaccion numero " << reg->subscription_length << ":\n\n";
+			cout << *reg;
+			});
+		menu.crear_opcion("Busqueda por: frequency of use", [this]() {
+			int num;
+			cout << "Ingresa numero a buscar: ";
+			cin >> num;
+			Registro* reg = new Registro();
+			reg->frequency_use = num;
+			auto busqueda = frequency_use_index->find(reg);
+			delete reg;
+			if (busqueda == nullptr) {
+				cout << "No se encontro nada" << endl;
+				return;
+			}
+			reg = *busqueda;
+			cout << "\nContenido de la transaccion numero " << reg->frequency_use << ":\n\n";
 			cout << *reg;
 			});
 		menu.crear_opcion("Cerrar sesion", [this, &salir]() {
