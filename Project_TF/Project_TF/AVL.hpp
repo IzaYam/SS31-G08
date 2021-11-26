@@ -70,7 +70,7 @@ private:
 	
 	T* _find(T& valor, Hoja<T>*& nodo) {
 		int comp = comparar(valor, nodo->valor);
-		if (comp == 0) return new T(nodo->valor);
+		if (comp == 0) { cout << "Ubicado en el nodo numero: " << nodo->nodopadre->nBloque << endl; return new T(nodo->valor); }
 		if (comp < 0) return _find(valor, nodo->izq);
 		if (comp > 0) return _find(valor, nodo->der);
 		return nullptr;
