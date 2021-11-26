@@ -9,7 +9,8 @@
 using namespace std;
 
 template<typename T>
-struct Block {
+class Block {
+public:
 	int hash, nBloque, nonce;
 	vector<T> elem;
 	Block<T>* ant;
@@ -64,7 +65,7 @@ public:
 		Block<T>* aux = inicio;
 		while (aux != nullptr) {
 			for (T& elem : aux->elem) {
-				arbol->insertar(elem);
+				arbol->insertar(elem, aux);
 			}
 			aux = aux->sig;
 		}
