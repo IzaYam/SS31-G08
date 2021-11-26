@@ -3,16 +3,22 @@
 #include <iostream>
 #include <string>
 #include <functional>
+#include "Lista.hpp"
 
 using namespace std;
 
 template <typename T>
-struct Hoja {
+class Block;
+
+template <typename T>
+class Hoja {
+public:
 	Hoja<T>* izq = nullptr;
 	Hoja<T>* der = nullptr;
+	Block<T>* nodopadre = nullptr;
 	T valor;
 	int altura = -1;
-	Hoja(T valor) : valor(valor) {}
+	Hoja(T valor, Block<T>* padre) : valor(valor), nodopadre(padre) {}
 };
 
 template <class T>
@@ -26,8 +32,8 @@ public:
 	ArbolBinario(CompararFn comp)
 		: comparar(comp), raiz(nullptr) {}
 
-	void insertar(T v) {
-		_insertar(v, raiz);
+	void insertar(T v, Block<T>*& padre) {
+		_insertar(v, raiz, padre);
 	}
 
 	void imprimir(StringifyFn impresora) {
@@ -49,15 +55,15 @@ private:
 		}
 	}
 
-	void _insertar(T valor, Hoja<T>*& nodo) {
+	void _insertar(T valor, Hoja<T>*& nodo, Block<T>*& padre) {
 		if (nodo == nullptr) {
-			nodo = new Hoja<T>(valor);
+			nodo = new Hoja<T>(valor, padre);
 			return;
 		}
 		if (comparar(valor, nodo->valor) < 0) {
-			_insertar(valor, nodo->izq);
+			_insertar(valor, nodo->izq, padre);
 		} else {
-			_insertar(valor, nodo->der);
+			_insertar(valor, nodo->der, padre);
 		}
 		balancear(nodo);
 	}
