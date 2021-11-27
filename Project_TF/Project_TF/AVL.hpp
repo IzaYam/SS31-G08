@@ -62,12 +62,13 @@ private:
 		}
 		if (comparar(valor, nodo->valor) < 0) {
 			_insertar(valor, nodo->izq, padre);
-		} else {
+		}
+		else {
 			_insertar(valor, nodo->der, padre);
 		}
 		balancear(nodo);
 	}
-	
+
 	T* _find(T& valor, Hoja<T>*& nodo) {
 		int comp = comparar(valor, nodo->valor);
 		if (comp == 0) { cout << "Ubicado en el nodo numero: " << nodo->nodopadre->nBloque << endl; return new T(nodo->valor); }

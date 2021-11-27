@@ -89,10 +89,13 @@ public:
 
 		vector<Registro*> aux;
 		int count = rand() % 11 + 1;
+		int suma = 0;
 		for (size_t i = 0; i < registros.size(); ++i) {
 			aux.push_back(registros[i]);
+			suma = registros[i]->call_failure + registros[i]->transaction_id + registros[i]->customer_id + registros[i]->complains + registros[i]->subscription_length + registros[i]->frequency_use;
 			if (aux.size() > count) {
-				blockchain.push_back(aux);
+				blockchain.push_back(aux, suma);
+				suma = 0;
 				aux = vector<Registro*>();
 				count = rand() % 11 + 1;
 			}
@@ -155,12 +158,12 @@ public:
 				return;
 			}
 			cout << endl << "Listado de transacciones de " << usuario_actual->get_nombre() << ":" << endl;
-				//mostrar datos de cada transaccion
-				blockchain.for_each([this](Registro* a) {
-					if (a->customer_id == usuario_actual->get_customer_ID()) {
-						cout << "\nContenido de la transaccion numero " << a->transaction_id << ":\n\n";
-						cout << *a;
-					}
+			//mostrar datos de cada transaccion
+			blockchain.for_each([this](Registro* a) {
+				if (a->customer_id == usuario_actual->get_customer_ID()) {
+					cout << "\nContenido de la transaccion numero " << a->transaction_id << ":\n\n";
+					cout << *a;
+				}
 				});
 			cout << endl;
 			});
@@ -172,9 +175,9 @@ public:
 			reg->call_failure = num;
 			auto busqueda = call_failure_index->find(reg);
 			delete reg;
-			if (busqueda == nullptr) { 
-				cout << "No se encontro nada" << endl; 
-				return; 
+			if (busqueda == nullptr) {
+				cout << "No se encontro nada" << endl;
+				return;
 			}
 			reg = *busqueda;
 			cout << "\nContenido de la transaccion numero " << reg->transaction_id << ":\n\n";

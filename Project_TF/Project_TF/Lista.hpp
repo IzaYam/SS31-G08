@@ -16,18 +16,17 @@ public:
 	Block<T>* ant;
 	Block<T>* sig;
 
-	Block(Block<T>* ant, vector<T>& elemento, int nBloque = 0)
+	Block(Block<T>* ant, vector<T>& elemento, int nBloque = 0, int suma = 0)
 		: ant(ant), elem(elemento), sig(nullptr), nBloque(nBloque) {
 		nonce = rand() % 89999 + 10000;
-		setAtributos();
+		setAtributos(suma);
 	}
 
-	void setAtributos() {
-		if (ant == nullptr) hash = (nBloque + nonce) % 10000000;
-		else hash = (nBloque + nonce + ant->hash) % 10000000;
+	void setAtributos(int n) {
+		if (ant == nullptr) hash = (nBloque + nonce + n) % 10000000;
+		else hash = (nBloque + nonce + n + ant->hash) % 10000000;
 		//cout << hash << endl;
 		//Esto es opcional, para que compruebes que los datos que salen son diferentes
-		// Se hizo una prueba con "List<int> una_lista_de_enteros"
 		/*ofstream archivo;
 		archivo.open("prueba.txt", ios::app);
 		archivo << hash << endl;
@@ -46,14 +45,14 @@ public:
 		size = 0;
 	}
 
-	void push_back(vector<T> elem) {
+	void push_back(vector<T> elem, int n) {
 		if (size == 0) {
-			inicio = fin = new Block<T>(nullptr, elem, size + 1);
+			inicio = fin = new Block<T>(nullptr, elem, size + 1, n);
 			++size;
 			return;
 		}
 
-		Block<T>* nuevo = new Block<T>(fin, elem, size + 1);
+		Block<T>* nuevo = new Block<T>(fin, elem, size + 1, n);
 		fin->sig = nuevo;
 		nuevo->ant = fin;
 		fin = nuevo;
